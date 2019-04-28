@@ -6,6 +6,7 @@ class About extends Component {
       <>
         <div>
           <h1>About Page</h1>
+          <p>hello</p>
         </div>
       </>
     );
