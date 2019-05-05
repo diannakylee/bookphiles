@@ -1,38 +1,73 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
+import axios from "axios";
+import Qs from "qs";
+
+
+const apiKey = "QLvL7aD7BW6F8MJunJyNLQ";
+const url = "https://www.goodreads.com/search.xml";
 
 class Dashboard extends Component {
   state = {
-    fruits: [],
+    searchResults: ""
   };
 
-  async componentDidMount() {
-    try {
-      const response = await fetch('/api/fruits');
-      const fruits = await response.json();
-      this.setState({
-        fruits: fruits.data,
-      });
-    } catch (e) {
-      console.error(e);
-    }
+  findBook = search => {
+    axios({
+      method: "GET",
+      url: "https://proxy.hackeryou.com",
+      dataResponse: "json",
+      paramsSerializer: function(params) {
+        return Qs.stringify(params, { arrayFormat: "brackets" });
+      },
+      params: {
+        reqUrl: url,
+        params: {
+          key: apiKey,
+          q: this.state.keywordSearch
+        },
+        xmlToJSON: true,
+        useCache: false
+      }
+    }).then(res => {
+      console.log(res);
+      const searchResults = res.data.GoodreadsResponse.search.results.work;
+      console.log(searchResults);
+      this.bookResultsList(searchResults)
+    });
+  };
+
+  bookResultsList = (array) => {
+    const bookResults = Array.from(array);
+    console.log('book results', bookResults);
   }
 
-  render () {
-    const { fruits } = this.state;
+  keywordInput = e => {
+    e.preventDefault();
+    this.setState({
+      keywordSearch: e.target.value
+    });
+  };
 
+  submitSearch = e => {
+    e.preventDefault();
+    this.findBook();
+  };
+
+  render() {
     return (
       <>
-        <div>
-          <h1>Dashboard</h1>
-          <ul>
-            {
-              fruits.map((fruit) => {
-                return (
-                  <li>{fruit.name}</li>
-                );
-              })
-            }
-          </ul>
+        <div className="search">
+          <form action="">
+            <label htmlFor="search">
+              <p>What do you want to read?</p>
+              <input onChange={this.keywordInput} type="text" id="book" />
+              <input
+                onClick={this.submitSearch}
+                type="submit"
+                value="Find Your Book"
+              />
+            </label>
+          </form>
         </div>
       </>
     );
